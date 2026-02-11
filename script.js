@@ -141,8 +141,8 @@ const COUNTRY_IMAGES = {
     "images/vn/Vn105.JPG",
   ],
   DK: [
-    "images/DK/Dk01.jpg",
-    "images/DK/Dk02.jpg"
+    "Images/DK/Dk01.jpg",
+    "Images/DK/Dk02.jpg"
   ],
   // Add more:
   // TH: ["images/th/01.jpg"]
@@ -375,4 +375,5 @@ tabs.forEach((tab) => {
     if (el) el.classList.add("active");
     tab.classList.add("active");
   });
+
 });
