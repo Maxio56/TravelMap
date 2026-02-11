@@ -243,3 +243,63 @@ body{
   color: #fff;
   cursor: pointer;
 }
+
+/* =========================
+   ITINERARY
+========================= */
+.page-title{
+  margin: 12px 0 16px;
+  color: #111;
+}
+
+.itinerary-list{
+  display: grid;
+  gap: 12px;
+  max-width: 900px;
+}
+
+.trip-card{
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 14px;
+  align-items: center;
+
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.trip-flag{
+  width: 92px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: #f3f3f3;
+}
+
+.trip-country{
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.trip-dates{
+  margin-top: 4px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.trip-notes{
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.70;
+}
+
+/* dark background compatibility if your page is dark */
+#view-itinerary{
+  padding: 12px;
+}
