@@ -1,6 +1,7 @@
 :root{
   --sidebar-w: 320px;     /* desktop sidebar width */
   --sidebar-gap: 0px;     /* becomes 0 when closed */
+  --topbar-h: 56px; /* adjust if you want */
 }
 
 /* Page */
@@ -43,6 +44,9 @@ body{
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   translate: 0 0;                 /* modern property (safe no-op) */
+
+  top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
 }
 
 .sidebar.open{
@@ -64,10 +68,10 @@ body{
 /* Map content: fixed, fills remaining viewport */
 .content{
   position: fixed;
-  top: 0;
+  top: var(--topbar-h);
   left: var(--sidebar-gap);
   width: calc(100vw - var(--sidebar-gap));
-  height: 100vh;
+  height: calc(100vh - var(--topbar-h));
   padding: 12px;
   box-sizing: border-box;
   overflow: auto; /* if map becomes taller */
@@ -129,4 +133,113 @@ body{
     width: 100vw;
     padding: 8px;
   }
+}
+
+.topbar{
+  position: fixed;          /* better here since your whole UI is fixed */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--topbar-h);
+  background: #111;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;          /* vertical padding removed because height is fixed */
+  z-index: 2000;
+}
+
+.brand {
+  font-weight: bold;
+}
+
+.tabs {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.tab.active {
+  background: rgba(255,255,255,0.25);
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+/* Sidebar gallery layout */
+.country-gallery{
+  margin-top: 12px;
+}
+
+.gallery-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.thumb{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: transform 120ms ease-in-out;
+}
+
+.thumb:hover{
+  transform: scale(1.02);
+}
+
+.hint{
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* Lightbox */
+.lightbox{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;            /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.lightbox.open{
+  display: flex;
+}
+
+.lightbox img{
+  max-width: min(1100px, 92vw);
+  max-height: 90vh;
+  border-radius: 12px;
+}
+
+.lightbox-close{
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 34px;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
 }
