@@ -13,7 +13,8 @@
     <div class="brand">My Travel</div>
 
     <nav class="tabs">
-      <button class="tab active" data-target="view-map" type="button">World map</button>
+      <button class="tab active" data-target="view-home" type="button">Home</button>
+      <button class="tab" data-target="view-map" type="button">World map</button>
       <button class="tab" data-target="view-itinerary" type="button">Trip itinerary</button>
       <button class="tab" data-target="view-gallery" type="button">Gallery</button>
     </nav>
@@ -22,8 +23,58 @@
   <!-- PAGE CONTENT -->
   <main class="page">
 
+    <section id="view-home" class="view active">
+      <!-- HERO -->
+      <section class="hero">
+        <img
+          class="hero-img"
+          src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2000&q=80"
+          alt="Mountains"
+        />
+
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+          <h1 class="hero-title">My Travel Archive</h1>
+          <p class="hero-subtitle">Maps, itinerary, and photos from my trips — all in one place.</p>
+
+          
+        </div>
+      </section>
+
+      <!-- INTRO -->
+      <section class="home-intro">
+        <h2 class="home-intro-title">Welcome</h2>
+        <p class="home-intro-text">
+          This website documents where I’ve been, what I've seen, and what is planned next.
+          Use the shortcuts below to jump to the main sections.
+        </p>
+      </section>
+
+      <!-- 3 BUBBLES -->
+      <section class="home-bubbles" aria-label="Quick links">
+        <button class="bubble" type="button" data-target="view-map">
+          <div class="bubble-icon">🗺️</div>
+          <div class="bubble-title">World map</div>
+          <div class="bubble-text">See where I've been and click on the countries to see the pictures from those countries.</div>
+        </button>
+
+        <button class="bubble" type="button" data-target="view-itinerary">
+          <div class="bubble-icon">🧭</div>
+          <div class="bubble-title">Itinerary</div>
+          <div class="bubble-text">Where I’m going next</div>
+        </button>
+
+        <button class="bubble" type="button" data-target="view-gallery">
+          <div class="bubble-icon">📷</div>
+          <div class="bubble-title">Gallery</div>
+          <div class="bubble-text">All trip photos in one place</div>
+        </button>
+      </section>
+    </section>
+
     <!-- WORLD MAP VIEW -->
-    <section id="view-map" class="view active">
+    <section id="view-map" class="view">
 
       <div class="layout">
 
@@ -998,7 +1049,21 @@
 
     <!-- ITINERARY VIEW -->
     <section id="view-itinerary" class="view">
-  <h2 class="page-title">Trip itinerary</h2>
+  <!-- HERO -->
+  <section class="hero hero-small">
+    <img
+      class="hero-img"
+      src="https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770889631/daniel-de-ciantis-_SVOl7zHs5E-unsplash_fkbz8x.jpg"
+      alt="Airplane window view"
+    />
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <h1 class="hero-title">Trip itinerary</h1>
+      <p class="hero-subtitle">Planned route and travel dates</p>
+    </div>
+  </section>
+
 
   <div class="itinerary-list">
     <!-- Card -->

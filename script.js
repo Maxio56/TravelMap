@@ -372,3 +372,33 @@ tabs.forEach((tab) => {
     tab.classList.add("active");
   });
 });
+
+document.querySelectorAll(".home-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.target;
+
+    views.forEach(v => v.classList.remove("active"));
+    tabs.forEach(t => t.classList.remove("active"));
+
+    document.getElementById(target).classList.add("active");
+    document.querySelector(`.tab[data-target="${target}"]`)?.classList.add("active");
+  });
+});
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-target]");
+  if (!btn) return;
+
+  const target = btn.dataset.target;
+  const view = document.getElementById(target);
+  if (!view) return;
+
+  // switch views
+  views.forEach(v => v.classList.remove("active"));
+  tabs.forEach(t => t.classList.remove("active"));
+  view.classList.add("active");
+
+  // if it's one of the top tabs, mark it active (Home might not be a .tab)
+  const matchingTab = [...tabs].find(t => t.dataset.target === target);
+  if (matchingTab) matchingTab.classList.add("active");
+});
