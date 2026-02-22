@@ -7,10 +7,10 @@ const closeBtn = document.getElementById("closeBtn");
 const mapFrame = document.getElementById("mapFrame");
 const content = document.querySelector(".content");
 
-// Sidebar gallery container (NEW)
+// Sidebar gallery container
 const countryGallery = document.getElementById("countryGallery");
 
-// Lightbox (NEW)
+// Lightbox
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const lightboxClose = document.getElementById("lightboxClose");
@@ -20,18 +20,12 @@ let selectedPath = null;
 // =========================
 // 1) VISITED COUNTRIES LIST
 // =========================
-
-// Best option: match SVG country codes on id="DK", id="VN", etc.
 const VISITED_IDS = new Set(["DK", "VN"]);
-
-// Alternative: match human names if your SVG uses name="Denmark", etc.
 const VISITED_NAMES = new Set([]);
 
 // =========================
-// 1b) COUNTRY -> IMAGES (NEW)
+// 1b) COUNTRY -> IMAGES
 // =========================
-// Put your real file paths here.
-// Example structure: images/vn/01.jpg etc.
 const COUNTRY_IMAGES = {
   VN: [
     "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802301/Vn01_j4ezuf.jpg",
@@ -135,33 +129,42 @@ const COUNTRY_IMAGES = {
     "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802453/Vn96_bzukul.jpg",
     "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802458/Vn97_nizhvj.jpg",
     "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802463/Vn98_f9lrqf.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758089/b9d7f929-6091-4a64-8ca6-e0294adca4e0_hxskyp.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758090/7ad4da95-9167-4556-80ba-02c382818250_q7v6ml.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758091/IMG_8238_vyn8y8.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758091/cf23a13b-b833-4b1a-87f9-cee39fa84d4d_glesri.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758092/IMG_8237_dptk4z.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758093/IMG_8236_w6kefi.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758094/IMG_8235_zwj5xj.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758095/IMG_8232_ubt6n9.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758096/IMG_8231_uyjuqg.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758097/IMG_8230_aircnd.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758098/IMG_8227_ruzqku.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758090/0eb721a6-c072-400c-8693-dc55e9cfc1f7_sxq5os.jpg",
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1771758103/IMG_8174_hdypri.jpg",
   ],
   DK: [
     "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802302/Dk01_om6dtw.jpg",
-    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802301/Dk02_vtd316.jpg"
+    "https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770802301/Dk02_vtd316.jpg",
   ],
-  // Add more:
-  // TH: ["images/th/01.jpg"]
 };
 
 // =========================
 // 2) Helpers to read country data
 // =========================
+function getCountryKey(el) {
+  const group = el.closest("g");
 
-function getCountryKey(path) {
-  const group = path.closest("g");
-
-  // Some SVGs put country id/name on <g>, not on <path>
   const id = (
-    path.getAttribute("id") ||
+    el.getAttribute("id") ||
     (group && group.getAttribute("id")) ||
     ""
   ).trim();
 
   const name = (
-    path.getAttribute("name") ||
+    el.getAttribute("name") ||
     (group && group.getAttribute("name")) ||
-    path.getAttribute("data-name") ||
+    el.getAttribute("data-name") ||
     (group && group.getAttribute("data-name")) ||
     ""
   ).trim();
@@ -169,39 +172,32 @@ function getCountryKey(path) {
   return { id, name };
 }
 
-function getDisplayName(path) {
-  const group = path.closest("g");
-
+function getDisplayName(el) {
+  const group = el.closest("g");
   return (
-    path.getAttribute("name") ||
+    el.getAttribute("name") ||
     (group && group.getAttribute("name")) ||
-    path.getAttribute("data-name") ||
+    el.getAttribute("data-name") ||
     (group && group.getAttribute("data-name")) ||
-    path.getAttribute("id") ||
+    el.getAttribute("id") ||
     (group && group.getAttribute("id")) ||
-    path.getAttribute("class") ||
+    el.getAttribute("class") ||
     (group && group.getAttribute("class")) ||
     "Unknown country"
   );
 }
 
-function getDisplayCode(path) {
-  const group = path.closest("g");
-  return (
-    path.getAttribute("id") ||
-    (group && group.getAttribute("id")) ||
-    ""
-  ).trim();
+function getDisplayCode(el) {
+  const group = el.closest("g");
+  return (el.getAttribute("id") || (group && group.getAttribute("id")) || "").trim();
 }
 
-function isVisited(path) {
-  const { id, name } = getCountryKey(path);
+function isVisited(el) {
+  const { id, name } = getCountryKey(el);
 
-  // Prefer IDs when you have them
   if (id && VISITED_IDS.size) return VISITED_IDS.has(id);
   if (name && VISITED_NAMES.size) return VISITED_NAMES.has(name);
 
-  // If you filled only one set, still try both
   if (id && VISITED_IDS.has(id)) return true;
   if (name && VISITED_NAMES.has(name)) return true;
 
@@ -209,17 +205,16 @@ function isVisited(path) {
 }
 
 function applyVisitedStyles() {
-  const paths = mapFrame.querySelectorAll("svg path");
-  paths.forEach((p) => {
-    if (isVisited(p)) p.classList.add("visited");
-    else p.classList.remove("visited");
+  const shapes = mapFrame.querySelectorAll("svg path, svg polygon");
+  shapes.forEach((s) => {
+    if (isVisited(s)) s.classList.add("visited");
+    else s.classList.remove("visited");
   });
 }
 
 // =========================
 // 3) Sidebar open/close
 // =========================
-
 function openSidebar(titleText) {
   countryTitle.textContent = titleText;
 
@@ -234,22 +229,22 @@ function closeSidebar() {
   content.classList.add("sidebar-closed");
 }
 
-// Start closed (recommended)
 closeSidebar();
 
-closeBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  closeSidebar();
-});
+if (closeBtn) {
+  closeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeSidebar();
+  });
+}
 
 // =========================
-// 3b) Gallery + lightbox (NEW)
+// 3b) Gallery + lightbox
 // =========================
-
 function renderGalleryForCountry(code, name) {
-  if (!countryGallery) return; // if you forgot to add it to HTML
+  if (!countryGallery) return;
 
-  const images = (code && COUNTRY_IMAGES[code]) ? COUNTRY_IMAGES[code] : [];
+  const images = code && COUNTRY_IMAGES[code] ? COUNTRY_IMAGES[code] : [];
 
   if (!images.length) {
     countryGallery.innerHTML = `<p class="hint">No photos added yet for ${name}${code ? ` (${code})` : ""}.</p>`;
@@ -303,7 +298,6 @@ if (lightboxClose) {
 
 if (lightbox) {
   lightbox.addEventListener("click", (e) => {
-    // clicking the dark background closes
     if (e.target === lightbox) closeLightbox();
   });
 }
@@ -313,45 +307,223 @@ document.addEventListener("keydown", (e) => {
 });
 
 // =========================
-// 4) Map click handler
+// 5) Click outside closes sidebar
 // =========================
-
-mapFrame.addEventListener("click", (e) => {
-  const path = e.target.closest("path");
-  if (!path) return;
-
-  // Debug: prints what we can read
-  console.log(path.getAttribute("id"), path.getAttribute("name"));
-
-  const name = getDisplayName(path);
-  const code = getDisplayCode(path);
-
-  // Selected highlight
-  if (selectedPath) selectedPath.classList.remove("selected");
-  selectedPath = path;
-  selectedPath.classList.add("selected");
-
-  openSidebar(name);
-  renderGalleryForCountry(code, name);
-});
-
-// =========================
-// 5) Optional: click outside closes (only if NOT clicking map)
-// =========================
-
 document.addEventListener("click", (e) => {
-  if (!sidebar.classList.contains("open")) return;
+  if (!sidebar || !sidebar.classList.contains("open")) return;
 
   const clickedInsideSidebar = sidebar.contains(e.target);
-  const clickedOnMap = mapFrame.contains(e.target);
+  const clickedOnMap = mapFrame && mapFrame.contains(e.target);
 
-  // close only if you click outside both sidebar and map
   if (!clickedInsideSidebar && !clickedOnMap) closeSidebar();
 });
 
 // =========================
-// 6) Init visited coloring
+// 0) SVG PAN + ZOOM (fixed)
 // =========================
+let svgEl = null;
+let viewportG = null;
+
+const view = {
+  scale: 1,
+  x: 0,
+  y: 0,
+  minScale: 1,
+  maxScale: 8,
+};
+
+function clamp(v, a, b) {
+  return Math.max(a, Math.min(b, v));
+}
+
+function applyTransform() {
+  if (!viewportG) return;
+  viewportG.setAttribute(
+    "transform",
+    `translate(${view.x} ${view.y}) scale(${view.scale})`
+  );
+}
+
+function ensureViewportGroup(svg) {
+  let g = svg.querySelector("#viewport");
+  if (g) return g;
+
+  g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("id", "viewport");
+
+  while (svg.firstChild) g.appendChild(svg.firstChild);
+  svg.appendChild(g);
+
+  return g;
+}
+
+function resetMapView(animated = true) {
+  const target = { scale: 1, x: 0, y: 0 };
+
+  if (!animated) {
+    view.scale = target.scale;
+    view.x = target.x;
+    view.y = target.y;
+    applyTransform();
+    return;
+  }
+
+  const steps = 12;
+  const s0 = view.scale,
+    x0 = view.x,
+    y0 = view.y;
+
+  let i = 0;
+  const tick = () => {
+    i++;
+    const t = i / steps;
+    view.scale = s0 + (target.scale - s0) * t;
+    view.x = x0 + (target.x - x0) * t;
+    view.y = y0 + (target.y - y0) * t;
+    applyTransform();
+    if (i < steps) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// Robust “what shape did the user click” (works even with pointer capture)
+function getShapeFromEvent(e) {
+  // normal case
+  let el = e.target;
+  let shape = el && el.closest ? el.closest("path, polygon") : null;
+  if (shape) return shape;
+
+  // fallback: ask browser what is under cursor
+  const hit = document.elementFromPoint(e.clientX, e.clientY);
+  shape = hit && hit.closest ? hit.closest("path, polygon") : null;
+  return shape;
+}
+
+function initSvgPanZoom() {
+  svgEl = mapFrame ? mapFrame.querySelector("svg") : null;
+  if (!svgEl) return;
+
+  viewportG = ensureViewportGroup(svgEl);
+
+  if (!svgEl.getAttribute("viewBox")) {
+    const bbox = viewportG.getBBox();
+    svgEl.setAttribute(
+      "viewBox",
+      `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`
+    );
+  }
+
+  resetMapView(false);
+
+  // Convert client coords to SVG coords
+  function svgPoint(clientX, clientY) {
+    const pt = svgEl.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    const inv = svgEl.getScreenCTM().inverse();
+    return pt.matrixTransform(inv);
+  }
+
+  // ---- PAN: capture only after drag (so clicks still target shapes) ----
+  let start = null;
+  let moved = false;
+  let captured = false;
+  const DRAG_THRESHOLD = 6;
+
+  svgEl.addEventListener("pointerdown", (e) => {
+    moved = false;
+    captured = false;
+
+    start = {
+      pointerId: e.pointerId,
+      x: view.x,
+      y: view.y,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      p: svgPoint(e.clientX, e.clientY),
+    };
+  });
+
+  svgEl.addEventListener("pointermove", (e) => {
+    if (!start || e.pointerId !== start.pointerId) return;
+
+    const dxClient = e.clientX - start.startClientX;
+    const dyClient = e.clientY - start.startClientY;
+
+    if (!moved && Math.hypot(dxClient, dyClient) > DRAG_THRESHOLD) {
+      moved = true;
+      if (!captured) {
+        svgEl.setPointerCapture(e.pointerId);
+        captured = true;
+      }
+    }
+
+    if (!moved) return;
+
+    const pNow = svgPoint(e.clientX, e.clientY);
+    const dx = pNow.x - start.p.x;
+    const dy = pNow.y - start.p.y;
+
+    view.x = start.x + dx;
+    view.y = start.y + dy;
+    applyTransform();
+  });
+
+  svgEl.addEventListener("pointerup", () => {
+    start = null;
+    moved = false;
+    captured = false;
+  });
+
+  svgEl.addEventListener("pointercancel", () => {
+    start = null;
+    moved = false;
+    captured = false;
+  });
+
+  // ---- WHEEL ZOOM (desktop) ----
+  svgEl.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      const mouse = svgPoint(e.clientX, e.clientY);
+
+      const zoomDir = e.deltaY > 0 ? 0.9 : 1.1;
+      const newScale = clamp(view.scale * zoomDir, view.minScale, view.maxScale);
+
+      view.x = view.x + (mouse.x - mouse.x * (newScale / view.scale));
+      view.y = view.y + (mouse.y - mouse.y * (newScale / view.scale));
+      view.scale = newScale;
+
+      applyTransform();
+    },
+    { passive: false }
+  );
+
+  // ---- CLICK: open sidebar/gallery (use robust hit-test) ----
+  svgEl.addEventListener("click", (e) => {
+    const shape = getShapeFromEvent(e);
+    if (!shape) return;
+
+    const name = getDisplayName(shape);
+    const code = getDisplayCode(shape);
+
+    if (selectedPath) selectedPath.classList.remove("selected");
+    selectedPath = shape;
+    selectedPath.classList.add("selected");
+
+    // optional: zoom reset on click (you wanted this earlier)
+    resetMapView(true);
+
+    openSidebar(name);
+    renderGalleryForCountry(code, name);
+  });
+}
+
+// =========================
+// 6) Init
+// =========================
+initSvgPanZoom();
 applyVisitedStyles();
 
 // =========================
@@ -373,32 +545,74 @@ tabs.forEach((tab) => {
   });
 });
 
-document.querySelectorAll(".home-btn").forEach(btn => {
+// If you still have any elements with class .home-btn, keep this.
+document.querySelectorAll(".home-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     const target = btn.dataset.target;
 
-    views.forEach(v => v.classList.remove("active"));
-    tabs.forEach(t => t.classList.remove("active"));
+    views.forEach((v) => v.classList.remove("active"));
+    tabs.forEach((t) => t.classList.remove("active"));
 
-    document.getElementById(target).classList.add("active");
-    document.querySelector(`.tab[data-target="${target}"]`)?.classList.add("active");
+    document.getElementById(target)?.classList.add("active");
+    document
+      .querySelector(`.tab[data-target="${target}"]`)
+      ?.classList.add("active");
   });
 });
 
+// Generic data-target navigation (bubbles etc.)
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-target]");
   if (!btn) return;
 
   const target = btn.dataset.target;
-  const view = document.getElementById(target);
-  if (!view) return;
+  const viewEl = document.getElementById(target);
+  if (!viewEl) return;
 
-  // switch views
-  views.forEach(v => v.classList.remove("active"));
-  tabs.forEach(t => t.classList.remove("active"));
-  view.classList.add("active");
+  views.forEach((v) => v.classList.remove("active"));
+  tabs.forEach((t) => t.classList.remove("active"));
+  viewEl.classList.add("active");
 
-  // if it's one of the top tabs, mark it active (Home might not be a .tab)
-  const matchingTab = [...tabs].find(t => t.dataset.target === target);
+  const matchingTab = [...tabs].find((t) => t.dataset.target === target);
   if (matchingTab) matchingTab.classList.add("active");
 });
+
+// =========================
+// ITINERARY: LOCAL TIME (NEW)
+// =========================
+function initItineraryClocks() {
+  const cards = document.querySelectorAll("#view-itinerary .trip-card[data-tz]");
+  if (!cards.length) return;
+
+  // Create per-timezone formatters (faster than recreating each tick)
+  const formatters = new Map();
+  cards.forEach(card => {
+    const tz = card.dataset.tz;
+    if (!tz || formatters.has(tz)) return;
+
+    formatters.set(tz, new Intl.DateTimeFormat(undefined, {
+      timeZone: tz,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }));
+  });
+
+  function tick() {
+    const now = new Date();
+    cards.forEach(card => {
+      const tz = card.dataset.tz;
+      const span = card.querySelector(".local-time");
+      const fmt = formatters.get(tz);
+      if (!span || !fmt) return;
+
+      span.textContent = fmt.format(now);
+    });
+  }
+
+  tick();
+  setInterval(tick, 1000);
+}
+
+initItineraryClocks();

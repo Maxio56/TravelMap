@@ -84,8 +84,10 @@ body{
 }
 .map-frame svg{
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
+  touch-action: none;
+  user-select: none;
 }
 
 /* Countries base style */
@@ -297,6 +299,30 @@ body{
   margin-top: 6px;
   font-size: 13px;
   opacity: 0.70;
+}
+
+.trip-info{
+  position: relative;
+}
+
+.trip-time{
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: 0.85;
+
+  /* puts it on the right side */
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  text-align: right;
+}
+
+@media (max-width: 650px){
+  /* On small screens, avoid overlap: make it normal flow */
+  .trip-time{
+    position: static;
+    text-align: left;
+  }
 }
 
 /* dark background compatibility if your page is dark */
@@ -511,4 +537,93 @@ body{
   object-fit: cover;        /* crops, doesn't stretch */
   object-position: center;  /* tweak if needed */
   display: block;
+}
+
+/* =========================
+   UPDATES (TIMELINE)
+========================= */
+
+#view-updates{
+  padding: 12px;
+  background: #fff;
+}
+
+.updates-wrap{
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.timeline{
+  position: relative;
+  margin-top: 14px;
+  padding-left: 18px; /* space for the line/dots */
+}
+
+.timeline::before{
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(0,0,0,0.10);
+}
+
+.t-item{
+  position: relative;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.t-item::before{
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 18px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #111;
+  box-shadow: 0 0 0 4px rgba(17,17,17,0.12);
+}
+
+.t-date{
+  font-size: 13px;
+  opacity: 0.75;
+  padding-top: 8px;
+  white-space: nowrap;
+}
+
+.t-card{
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.t-title{
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.t-text{
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.85;
+  line-height: 1.35;
+}
+
+/* Mobile: date above card */
+@media (max-width: 700px){
+  .t-item{
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .t-date{
+    padding-top: 0;
+  }
 }

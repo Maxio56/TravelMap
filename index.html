@@ -16,7 +16,7 @@
       <button class="tab active" data-target="view-home" type="button">Home</button>
       <button class="tab" data-target="view-map" type="button">World map</button>
       <button class="tab" data-target="view-itinerary" type="button">Trip itinerary</button>
-      <button class="tab" data-target="view-gallery" type="button">Gallery</button>
+      <button class="tab" data-target="view-updates" type="button">Updates</button>
     </nav>
   </header>
 
@@ -65,10 +65,10 @@
           <div class="bubble-text">Where I’m going next</div>
         </button>
 
-        <button class="bubble" type="button" data-target="view-gallery">
-          <div class="bubble-icon">📷</div>
-          <div class="bubble-title">Gallery</div>
-          <div class="bubble-text">All trip photos in one place</div>
+        <button class="bubble" type="button" data-target="view-updates">
+          <div class="bubble-icon">🗓️</div>
+          <div class="bubble-title">Updates</div>
+          <div class="bubble-text">What changed recently</div>
         </button>
       </section>
     </section>
@@ -1067,59 +1067,104 @@
 
   <div class="itinerary-list">
     <!-- Card -->
-    <article class="trip-card">
+    <article class="trip-card" data-tz="Asia/Ho_Chi_Minh">
       <img class="trip-flag" src="https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770805825/Flag_of_Vietnam_cvljrj.png" alt="Vietnam flag" />
       <div class="trip-info">
         <div class="trip-country">Vietnam</div>
         <div class="trip-dates">22 Jan 2026 → 01 Mar 2026</div>
-        <!-- optional -->
         <div class="trip-notes">Hanoi</div>
+        <div class="trip-time">Local time: <span class="local-time">—</span></div>
       </div>
     </article>
 
-    <article class="trip-card">
+    <article class="trip-card" data-tz="Asia/Bangkok">
       <img class="trip-flag" src="https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770805836/Flag_of_Thailand_tn9nor.png" alt="Thailand flag" />
       <div class="trip-info">
         <div class="trip-country">Thailand</div>
         <div class="trip-dates">1 Mar 2026 → 20 May 2026</div>
         <div class="trip-notes">Bangkok • Koh Phangan • Chiang Mai</div>
+        <div class="trip-time">Local time: <span class="local-time">—</span></div>
       </div>
     </article>
 
-    <article class="trip-card">
+    <article class="trip-card" data-tz="Asia/Chongqing">
       <img class="trip-flag" src="https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770805836/Flag_of_the_People_s_Republic_of_China_hvyshh.png" alt="China flag" />
       <div class="trip-info">
         <div class="trip-country">China</div>
         <div class="trip-dates">20 May 2026 → 08 Jun 2026</div>
         <div class="trip-notes">Xi'an • Chongqing • Zhangjiajie • Wuhan</div>
+        <div class="trip-time">Local time: <span class="local-time">—</span></div>
       </div>
     </article>
 
-    <article class="trip-card">
+    <article class="trip-card" data-tz="Asia/Tokyo">
       <img class="trip-flag" src="https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770805837/Flag_of_Japan.svg_krsj6v.png" alt="Japan flag" />
       <div class="trip-info">
         <div class="trip-country">Japan</div>
         <div class="trip-dates">08 Jun 2026 → 16 Jun 2026</div>
         <div class="trip-notes">Osaka • Kyoto</div>
+        <div class="trip-time">Local time: <span class="local-time">—</span></div>
       </div>
     </article>
 
-    <article class="trip-card">
+    <article class="trip-card" data-tz="America/Panama">
       <img class="trip-flag" src="https://res.cloudinary.com/dvmh2wjrj/image/upload/v1770805863/Flag_of_Panama_dm8kxb.png" alt="Panama flag" />
       <div class="trip-info">
         <div class="trip-country">Panama</div>
-        <div class="trip-dates">16 Jun 2026 → ???</div>
+        <div class="trip-dates">17 Jun 2026 → ???</div>
         <div class="trip-notes">Panama City</div>
+        <div class="trip-time">Local time: <span class="local-time">—</span></div>
       </div>
     </article>
   </div>
 </section>
 
-    <!-- GALLERY VIEW -->
-    <section id="view-gallery" class="view">
-      <h2>Gallery</h2>
-      <p>Coming soon…</p>
-    </section>
+    <!--Updates view-->
+    <section id="view-updates" class="view">
+  <!-- optional small hero (same style as itinerary) -->
+  <section class="hero hero-small">
+    <img
+      class="hero-img"
+      src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=2000&q=80"
+      alt="Travel"
+    />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Updates</h1>
+      <p class="hero-subtitle">What’s been added recently</p>
+    </div>
+  </section>
+
+  <div class="updates-wrap">
+    <h2 class="page-title">Timeline</h2>
+
+    <div class="timeline">
+      <article class="t-item">
+        <div class="t-date">09 Feb 2026</div>
+        <div class="t-card">
+          <div class="t-title">Vietnam and Denmark</div>
+          <div class="t-text">103 new photos added.</div>
+        </div>
+      </article>
+
+      <article class="t-item">
+        <div class="t-date">15 Feb 2026</div>
+        <div class="t-card">
+          <div class="t-title">Website</div>
+          <div class="t-text">Itinerary added</div>
+        </div>
+      </article>
+
+      <article class="t-item">
+        <div class="t-date">22 Feb 2026</div>
+        <div class="t-card">
+          <div class="t-title">Vietnam</div>
+          <div class="t-text">13 new photos added.</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 
   </main>
 
