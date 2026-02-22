@@ -518,6 +518,13 @@ function initSvgPanZoom() {
     openSidebar(name);
     renderGalleryForCountry(code, name);
   });
+
+  // iOS fallback for pinch (touch events)
+svgEl.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 2) {
+    e.preventDefault(); // required on iOS
+  }
+}, { passive: false });
 }
 
 // =========================
