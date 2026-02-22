@@ -403,14 +403,16 @@ function initSvgPanZoom() {
   svgEl = mapFrame ? mapFrame.querySelector("svg") : null;
   if (!svgEl) return;
 
+  // Prevent iOS page scrolling/zooming on the SVG (we handle gestures ourselves)
+  // (Also OK to keep this in CSS: .map-frame svg { touch-action: none; })
+  svgEl.style.touchAction = "none";
+
   viewportG = ensureViewportGroup(svgEl);
 
+  // Ensure viewBox exists (important for consistent coordinates)
   if (!svgEl.getAttribute("viewBox")) {
     const bbox = viewportG.getBBox();
-    svgEl.setAttribute(
-      "viewBox",
-      `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`
-    );
+    svgEl.setAttribute("viewBox", `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
   }
 
   resetMapView(false);
@@ -420,21 +422,48 @@ function initSvgPanZoom() {
     const pt = svgEl.createSVGPoint();
     pt.x = clientX;
     pt.y = clientY;
-    const inv = svgEl.getScreenCTM().inverse();
+    const ctm = svgEl.getScreenCTM();
+    if (!ctm) return { x: 0, y: 0 };
+    const inv = ctm.inverse();
     return pt.matrixTransform(inv);
   }
 
-  // ---- PAN: capture only after drag (so clicks still target shapes) ----
-  let start = null;
+  // Robust hit-test: find a path (or any svg element) even if clicking on <g> etc.
+  function getShapeFromEvent(e) {
+    const t = e.target;
+
+    // Prefer path (your map is paths)
+    if (t && t.closest) {
+      const p = t.closest("path");
+      if (p) return p;
+    }
+
+    // Fallback: elementFromPoint can work when target is weird
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (el && el.closest) {
+      const p2 = el.closest("path");
+      if (p2) return p2;
+    }
+
+    return null;
+  }
+
+  // =========================
+  // PAN (pointer) - starts only after drag threshold
+  // =========================
+  let panStart = null;
   let moved = false;
   let captured = false;
   const DRAG_THRESHOLD = 6;
 
   svgEl.addEventListener("pointerdown", (e) => {
+    // Only handle primary button for mouse
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
     moved = false;
     captured = false;
 
-    start = {
+    panStart = {
       pointerId: e.pointerId,
       x: view.x,
       y: view.y,
@@ -445,10 +474,10 @@ function initSvgPanZoom() {
   });
 
   svgEl.addEventListener("pointermove", (e) => {
-    if (!start || e.pointerId !== start.pointerId) return;
+    if (!panStart || e.pointerId !== panStart.pointerId) return;
 
-    const dxClient = e.clientX - start.startClientX;
-    const dyClient = e.clientY - start.startClientY;
+    const dxClient = e.clientX - panStart.startClientX;
+    const dyClient = e.clientY - panStart.startClientY;
 
     if (!moved && Math.hypot(dxClient, dyClient) > DRAG_THRESHOLD) {
       moved = true;
@@ -461,36 +490,39 @@ function initSvgPanZoom() {
     if (!moved) return;
 
     const pNow = svgPoint(e.clientX, e.clientY);
-    const dx = pNow.x - start.p.x;
-    const dy = pNow.y - start.p.y;
+    const dx = pNow.x - panStart.p.x;
+    const dy = pNow.y - panStart.p.y;
 
-    view.x = start.x + dx;
-    view.y = start.y + dy;
+    view.x = panStart.x + dx;
+    view.y = panStart.y + dy;
     applyTransform();
   });
 
   svgEl.addEventListener("pointerup", () => {
-    start = null;
+    panStart = null;
     moved = false;
     captured = false;
   });
 
   svgEl.addEventListener("pointercancel", () => {
-    start = null;
+    panStart = null;
     moved = false;
     captured = false;
   });
 
-  // ---- WHEEL ZOOM (desktop) ----
+  // =========================
+  // WHEEL ZOOM (desktop)
+  // =========================
   svgEl.addEventListener(
     "wheel",
     (e) => {
       e.preventDefault();
-      const mouse = svgPoint(e.clientX, e.clientY);
 
+      const mouse = svgPoint(e.clientX, e.clientY);
       const zoomDir = e.deltaY > 0 ? 0.9 : 1.1;
       const newScale = clamp(view.scale * zoomDir, view.minScale, view.maxScale);
 
+      // Keep mouse point fixed
       view.x = view.x + (mouse.x - mouse.x * (newScale / view.scale));
       view.y = view.y + (mouse.y - mouse.y * (newScale / view.scale));
       view.scale = newScale;
@@ -500,8 +532,127 @@ function initSvgPanZoom() {
     { passive: false }
   );
 
-  // ---- CLICK: open sidebar/gallery (use robust hit-test) ----
+  // =========================
+  // iOS TOUCH PINCH ZOOM (no double tap)
+  // =========================
+  let touchMode = null; // "pan" | "pinch"
+  let touchPan = null;
+
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+  let pinchCenterSvg = null;
+
+  function getTouchDist(t1, t2) {
+    const dx = t2.clientX - t1.clientX;
+    const dy = t2.clientY - t1.clientY;
+    return Math.hypot(dx, dy);
+  }
+
+  function getTouchCenter(t1, t2) {
+    return {
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2,
+    };
+  }
+
+  svgEl.addEventListener(
+    "touchstart",
+    (e) => {
+      if (e.touches.length === 1) {
+        touchMode = "pan";
+        const t = e.touches[0];
+        touchPan = {
+          x: view.x,
+          y: view.y,
+          p: svgPoint(t.clientX, t.clientY),
+        };
+      } else if (e.touches.length === 2) {
+        touchMode = "pinch";
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+
+        pinchStartDist = getTouchDist(t1, t2);
+        pinchStartScale = view.scale;
+
+        const c = getTouchCenter(t1, t2);
+        pinchCenterSvg = svgPoint(c.x, c.y);
+      }
+    },
+    { passive: false }
+  );
+
+  svgEl.addEventListener(
+    "touchmove",
+    (e) => {
+      // Critical: stop Safari from page-scrolling/zooming
+      e.preventDefault();
+
+      if (touchMode === "pan" && e.touches.length === 1 && touchPan) {
+        const t = e.touches[0];
+        const pNow = svgPoint(t.clientX, t.clientY);
+        const dx = pNow.x - touchPan.p.x;
+        const dy = pNow.y - touchPan.p.y;
+
+        view.x = touchPan.x + dx;
+        view.y = touchPan.y + dy;
+        applyTransform();
+      }
+
+      if (touchMode === "pinch" && e.touches.length === 2 && pinchCenterSvg) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+
+        const dist = getTouchDist(t1, t2);
+        const factor = dist / pinchStartDist;
+
+        const newScale = clamp(
+          pinchStartScale * factor,
+          view.minScale,
+          view.maxScale
+        );
+
+        // Zoom around pinch center, keep it stable
+        const c = pinchCenterSvg;
+        view.x = view.x + (c.x - c.x * (newScale / view.scale));
+        view.y = view.y + (c.y - c.y * (newScale / view.scale));
+        view.scale = newScale;
+
+        applyTransform();
+      }
+    },
+    { passive: false }
+  );
+
+  svgEl.addEventListener(
+    "touchend",
+    (e) => {
+      // If one finger remains, continue as pan
+      if (e.touches && e.touches.length === 1) {
+        const t = e.touches[0];
+        touchMode = "pan";
+        touchPan = {
+          x: view.x,
+          y: view.y,
+          p: svgPoint(t.clientX, t.clientY),
+        };
+        pinchCenterSvg = null;
+        return;
+      }
+
+      touchMode = null;
+      touchPan = null;
+      pinchCenterSvg = null;
+    },
+    { passive: true }
+  );
+
+  // =========================
+  // CLICK: open sidebar/gallery
+  // =========================
   svgEl.addEventListener("click", (e) => {
+    // If a drag happened, skip click
+    if (moved) return;
+
     const shape = getShapeFromEvent(e);
     if (!shape) return;
 
@@ -512,19 +663,12 @@ function initSvgPanZoom() {
     selectedPath = shape;
     selectedPath.classList.add("selected");
 
-    // optional: zoom reset on click (you wanted this earlier)
+    // optional reset
     resetMapView(true);
 
     openSidebar(name);
     renderGalleryForCountry(code, name);
   });
-
-  // iOS fallback for pinch (touch events)
-svgEl.addEventListener("touchmove", (e) => {
-  if (e.touches.length === 2) {
-    e.preventDefault(); // required on iOS
-  }
-}, { passive: false });
 }
 
 // =========================

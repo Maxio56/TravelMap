@@ -81,14 +81,18 @@ body{
 .map-frame{
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .map-frame svg{
   width: 100%;
   height: 100%;
   display: block;
-  touch-action: none;
-  user-select: none;
+  touch-action: none;       /* keep this */
 }
+
 
 /* Countries base style */
 .map-frame svg path{
